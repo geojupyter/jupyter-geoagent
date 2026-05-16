@@ -12,6 +12,7 @@ import maplibregl from 'maplibre-gl';
 import * as pmtiles from 'pmtiles';
 import { MapLayerConfig, LayerState, MapViewState, ColumnInfo } from '../core/types';
 import type { MCPClientWrapper } from '../core/mcp';
+import { extractHashFromUrl, buildFillColorExpression } from 'geo-agent/app/hex-layer-helpers.js';
 
 const BASEMAPS: Record<string, { tiles: string[]; maxzoom: number }> = {
   natgeo: {
@@ -484,6 +485,126 @@ export class MapViewController {
 
   flyTo(center: [number, number], zoom?: number): void {
     this.map.flyTo({ center, zoom: zoom || this.map.getZoom() });
+  }
+
+  addHexTileLayer(opts: {
+    tileUrl: string;
+    valueColumn: string;
+    valueStats: { by_res: Record<string, { min: number; max: number }> };
+    bounds: [number, number, number, number];
+    palette?: 'viridis' | 'ylorrd' | 'bluered';
+    opacity?: number;
+    displayName: string;
+    fitBounds?: boolean;
+    layerName?: string;
+  }): {
+    success: true;
+    layer_id: string;
+    display_name: string;
+    value_column: string;
+    bounds: [number, number, number, number];
+    already_exists: boolean;
+    message?: string;
+  } | { success: false; error: string } {
+    const { tileUrl, valueColumn, valueStats, bounds, palette = 'viridis', opacity = 0.7, displayName, fitBounds = true, layerName } = opts;
+    const sourceLayer = layerName || 'layer';
+
+    const hash = extractHashFromUrl(tileUrl);
+    if (!hash) {
+      return { success: false, error: 'Invalid tile_url — expected template from register_hex_tiles ending in /tiles/hex/<hash>/{z}/{x}/{y}.pbf' };
+    }
+    const layerId = `hex-${hash}`;
+
+    if (this.layers.has(layerId)) {
+      const state = this.layers.get(layerId)!;
+      return {
+        success: true,
+        layer_id: layerId,
+        display_name: state.displayName,
+        value_column: valueColumn,
+        bounds,
+        already_exists: true,
+        message: 'Layer already registered. Use remove_hex_tile_layer first to re-add with different styling.',
+      };
+    }
+
+    const availableRes = Object.keys(valueStats?.by_res || {}).map(Number).sort((a, b) => a - b);
+    if (availableRes.length === 0) {
+      return { success: false, error: 'value_stats.by_res must contain at least one resolution' };
+    }
+
+    let fillColor: any;
+    try {
+      fillColor = buildFillColorExpression(valueColumn, valueStats, palette);
+    } catch (err: any) {
+      return { success: false, error: err?.message ?? String(err) };
+    }
+
+    const paint = {
+      'fill-color': fillColor,
+      'fill-opacity': opacity,
+      'fill-outline-color': 'rgba(0,0,0,0.15)',
+    };
+
+    this.map.addSource(layerId, { type: 'vector', tiles: [tileUrl], minzoom: 0, maxzoom: 14 });
+    this.map.addLayer({
+      id: layerId,
+      type: 'fill',
+      source: layerId,
+      'source-layer': sourceLayer,
+      layout: { visibility: 'visible' },
+      paint: paint as any,
+    });
+
+    this.layers.set(layerId, {
+      id: layerId,
+      kind: 'hex',
+      displayName,
+      type: 'vector',
+      visible: true,
+      opacity,
+      filter: undefined,
+      defaultFilter: undefined,
+      tooltipFields: null,
+      defaultTooltipFields: null,
+      defaultStyle: { ...paint },
+      currentStyle: { ...paint },
+      sourceId: layerId,
+      sourceLayer,
+      columns: [],
+    });
+
+    this._wireTooltip(layerId, layerId);
+
+    if (fitBounds && Array.isArray(bounds) && bounds.length === 4) {
+      const [w, s, e, n] = bounds;
+      this.map.fitBounds([[w, s], [e, n]], { padding: 40, duration: 800 });
+    }
+
+    return {
+      success: true,
+      layer_id: layerId,
+      display_name: displayName,
+      value_column: valueColumn,
+      bounds,
+      already_exists: false,
+    };
+  }
+
+  removeHexTileLayer(layerId: string):
+    { success: true; layer_id: string }
+    | { success: false; error: string } {
+    if (typeof layerId !== 'string' || !layerId.startsWith('hex-')) {
+      return { success: false, error: `layer_id '${layerId}' is not a hex layer (must start with 'hex-')` };
+    }
+    if (!this.layers.has(layerId)) {
+      const hexLayers = [...this.layers.keys()].filter(id => id.startsWith('hex-'));
+      return { success: false, error: `Unknown hex layer '${layerId}'. Registered: [${hexLayers.join(', ')}]` };
+    }
+    if (this.map.getLayer(layerId)) this.map.removeLayer(layerId);
+    if (this.map.getSource(layerId)) this.map.removeSource(layerId);
+    this.layers.delete(layerId);
+    return { success: true, layer_id: layerId };
   }
 
   getViewState(): MapViewState {
