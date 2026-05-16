@@ -526,3 +526,34 @@ h3 {
   font-size: var(--jp-ui-font-size0);
   padding: 4px 0;
 }
+
+.jp-GeoAgent-tooltip {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 11px;
+  color: #222;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  max-width: 320px;
+  z-index: 10;
+}
+
+.jp-GeoAgent-tooltip table {
+  border-collapse: collapse;
+}
+
+.jp-GeoAgent-tooltip th,
+.jp-GeoAgent-tooltip td {
+  padding: 1px 4px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.jp-GeoAgent-tooltip th {
+  font-weight: 600;
+  color: #555;
+}

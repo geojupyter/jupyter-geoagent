@@ -44,10 +44,12 @@ export class MapViewController {
   map: maplibregl.Map;
   layers: Map<string, LayerState> = new Map();
   private titilerUrl: string;
+  private _tooltip: HTMLDivElement;
 
-  constructor(map: maplibregl.Map, titilerUrl: string) {
+  constructor(map: maplibregl.Map, titilerUrl: string, tooltip: HTMLDivElement) {
     this.map = map;
     this.titilerUrl = titilerUrl;
+    this._tooltip = tooltip;
   }
 
   /**
@@ -156,6 +158,8 @@ export class MapViewController {
       fillColor: initialFillColor,
       filter: config.defaultFilter,
       defaultFilter: config.defaultFilter,
+      tooltipFields: config.tooltipFields ? [...config.tooltipFields] : null,
+      defaultTooltipFields: config.tooltipFields ? [...config.tooltipFields] : null,
       defaultStyle: appliedPaint,
       currentStyle: { ...appliedPaint },
       colormap: config.colormap,
@@ -168,6 +172,10 @@ export class MapViewController {
       titilerUrl: this.titilerUrl,
       cogUrl: config.cogUrl,
     });
+
+    if (config.layerType === 'vector') {
+      this._wireTooltip(layerId, layerId);
+    }
 
     return layerId;
   }
@@ -474,6 +482,42 @@ export class MapViewController {
   resize(): void {
     this.map.resize();
   }
+
+  private _wireTooltip(mapLayerId: string, layerId: string): void {
+    this.map.on('mousemove', mapLayerId, (e) => {
+      const fields = this.layers.get(layerId)?.tooltipFields;
+      if (!fields || fields.length === 0) return;
+      if (!e.features || e.features.length === 0) return;
+      const props = e.features[0].properties ?? {};
+      const rows = fields
+        .filter((f: string) => props[f] !== undefined && props[f] !== null && props[f] !== '')
+        .map((f: string) => `<tr><th>${f}</th><td>${this._formatTooltipValue(f, props[f])}</td></tr>`)
+        .join('');
+      if (!rows) return;
+      this._tooltip.innerHTML = `<table>${rows}</table>`;
+      this._tooltip.style.display = 'block';
+      const rect = this.map.getContainer().getBoundingClientRect();
+      this._tooltip.style.left = (e.originalEvent.clientX - rect.left + 12) + 'px';
+      this._tooltip.style.top = (e.originalEvent.clientY - rect.top - 12) + 'px';
+      this.map.getCanvas().style.cursor = 'pointer';
+    });
+
+    this.map.on('mouseleave', mapLayerId, () => {
+      this._tooltip.style.display = 'none';
+      this.map.getCanvas().style.cursor = '';
+    });
+  }
+
+  private _formatTooltipValue(field: string, value: any): string | number {
+    const lf = field.toLowerCase();
+    if (typeof value === 'number' && (lf.includes('value') || lf.includes('price') || lf.includes('cost'))) {
+      return '$' + value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+    if (typeof value === 'number' && (lf.includes('acres') || lf.includes('area'))) {
+      return value.toLocaleString('en-US', { maximumFractionDigits: 1 });
+    }
+    return value;
+  }
 }
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -484,6 +528,7 @@ export const MapView: React.FC<MapViewProps> = ({
   onMapReady,
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<maplibregl.Map | null>(null);
 
   React.useEffect(() => {
@@ -517,7 +562,8 @@ export const MapView: React.FC<MapViewProps> = ({
 
     map.on('load', () => {
       mapRef.current = map;
-      const controller = new MapViewController(map, titilerUrl);
+      if (!tooltipRef.current) return;
+      const controller = new MapViewController(map, titilerUrl, tooltipRef.current);
       if (onMapReady) onMapReady(controller);
     });
 
@@ -531,7 +577,9 @@ export const MapView: React.FC<MapViewProps> = ({
     <div
       ref={containerRef}
       className="jp-GeoAgent-map"
-      style={{ width: '100%', height: '100%' }}
-    />
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+    >
+      <div ref={tooltipRef} className="jp-GeoAgent-tooltip" />
+    </div>
   );
 };
