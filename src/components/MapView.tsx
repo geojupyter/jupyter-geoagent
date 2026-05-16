@@ -146,6 +146,7 @@ export class MapViewController {
 
     this.layers.set(layerId, {
       id: layerId,
+      kind: 'catalog',
       datasetId,
       assetId: config.assetId,
       displayName: config.title,

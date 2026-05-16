@@ -29,6 +29,8 @@ export interface MapLayerConfig {
   sourceLayer?: string;
   defaultVisible: boolean;
   defaultFilter?: any[];
+  /** Property names to render on hover. Mirrors the upstream layers-input.json field. */
+  tooltipFields?: string[];
   defaultStyle?: Record<string, any>;
   outlineStyle?: Record<string, any>;
   colormap?: string;
@@ -75,8 +77,12 @@ export interface MapViewState {
 
 export interface LayerState {
   id: string;
-  datasetId: string;
-  assetId: string;
+  /** Which kind of layer this is. Catalog layers come from STAC + addLayer; hex layers come from addHexTileLayer. */
+  kind: 'catalog' | 'hex';
+  /** STAC collection id. Required for catalog layers; absent for hex layers. */
+  datasetId?: string;
+  /** STAC asset id (the visual asset key). Required for catalog layers; absent for hex layers. */
+  assetId?: string;
   displayName: string;
   type: 'vector' | 'raster';
   visible: boolean;
@@ -84,6 +90,10 @@ export interface LayerState {
   fillColor?: string;
   filter?: any[];
   defaultFilter?: any[];
+  /** Tooltip property names (current). null/undefined disables the tooltip. */
+  tooltipFields?: string[] | null;
+  /** Tooltip property names from the config default (used by reset_tooltip). */
+  defaultTooltipFields?: string[] | null;
   /** Original paint from MapLayerConfig.defaultStyle — never mutated after addLayer. */
   defaultStyle?: Record<string, any>;
   /** Live paint: seeded from defaultStyle, updated by setStyle. */
