@@ -112,7 +112,7 @@ export const LayerDetails: React.FC<LayerDetailsProps> = ({
         </div>
       )}
 
-      {layer.type === 'vector' && (
+      {layer.type === 'vector' && layer.kind !== 'hex' && (
         <SetStyleForm
           layer={layer}
           mapController={mapController!}
@@ -121,7 +121,7 @@ export const LayerDetails: React.FC<LayerDetailsProps> = ({
         />
       )}
 
-      {layer.type === 'vector' && (
+      {layer.type === 'vector' && layer.kind !== 'hex' && (
         <SetFilterForm
           layer={layer}
           mapController={mapController!}
@@ -130,7 +130,7 @@ export const LayerDetails: React.FC<LayerDetailsProps> = ({
         />
       )}
 
-      {layer.type === 'vector' && mcpClient && (
+      {layer.type === 'vector' && layer.kind !== 'hex' && mcpClient && (
         <FilterByQueryForm
           layer={layer}
           mapController={mapController!}
@@ -138,6 +138,23 @@ export const LayerDetails: React.FC<LayerDetailsProps> = ({
           mcpClient={mcpClient}
           onChange={onChange}
         />
+      )}
+
+      {layer.kind === 'hex' && (
+        <div className="jp-GeoAgent-field">
+          <div className="jp-GeoAgent-field-label">
+            <span>Opacity</span>
+            <span>{layer.opacity.toFixed(2)}</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={layer.opacity}
+            onChange={handleOpacity}
+          />
+        </div>
       )}
 
       {layer.type === 'raster' && (
