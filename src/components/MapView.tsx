@@ -296,6 +296,36 @@ export class MapViewController {
     return this.setStyle(layerId, state.defaultStyle);
   }
 
+  setTooltip(
+    layerId: string,
+    fields: string[],
+  ): { success: true; layer: string; displayName: string; tooltipFields: string[] | null }
+    | { success: false; error: string } {
+    const state = this.layers.get(layerId);
+    if (!state) return { success: false, error: `Unknown layer: ${layerId}` };
+    if (state.type !== 'vector') {
+      return { success: false, error: `Tooltips only apply to vector layers; '${layerId}' is ${state.type}` };
+    }
+    if (!Array.isArray(fields) || !fields.every(f => typeof f === 'string')) {
+      return { success: false, error: 'fields must be an array of strings' };
+    }
+    state.tooltipFields = fields.length > 0 ? [...fields] : null;
+    return { success: true, layer: layerId, displayName: state.displayName, tooltipFields: state.tooltipFields };
+  }
+
+  resetTooltip(
+    layerId: string,
+  ): { success: true; layer: string; displayName: string; tooltipFields: string[] | null }
+    | { success: false; error: string } {
+    const state = this.layers.get(layerId);
+    if (!state) return { success: false, error: `Unknown layer: ${layerId}` };
+    if (state.type !== 'vector') {
+      return { success: false, error: `Tooltips only apply to vector layers; '${layerId}' is ${state.type}` };
+    }
+    state.tooltipFields = state.defaultTooltipFields ? [...state.defaultTooltipFields] : null;
+    return { success: true, layer: layerId, displayName: state.displayName, tooltipFields: state.tooltipFields };
+  }
+
   /**
    * Apply the config default filter, or clear if none.
    */
