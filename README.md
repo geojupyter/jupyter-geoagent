@@ -34,5 +34,5 @@ jupyter lab --no-browser
 
 ## Documentation
 
-- **User guide:** how to use the extension day-to-day. Published at https://boettiger-lab.github.io/jupyter-geoagent/ (once GitHub Pages is configured) or read the source at [docs/usage.md](docs/usage.md).
+- **User guide:** how to use the extension day-to-day. Published at <https://jupyter-geoagent.readthedocs.io/> or read the source at [docs/usage.md](docs/usage.md).
 - **Design specification:** architecture and module reuse reference for contributors at [docs/design.md](docs/design.md).
