@@ -5,3 +5,6 @@ jupyter-myst-build-proxy
 jupyter-server-documents
 jupyter-server-proxy==4.4.0
 jupyterlab-myst
+duckdb
+matplotlib
+pandas
