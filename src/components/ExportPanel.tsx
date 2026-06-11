@@ -45,7 +45,7 @@ function buildLayersInputConfig(
   titilerUrl: string,
 ): LayersInputConfig {
   const viewState = mapController.getViewState();
-  const layers = [...mapController.layers.values()];
+  const layers = [...mapController.layers.values()].filter(l => l.kind === 'catalog');
 
   const datasetLayers = new Map<string, string[]>();
   for (const layer of layers) {

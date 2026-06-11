@@ -138,6 +138,30 @@ export class MapManagerAdapter {
     return { success: true, layer: layerId, displayName: state.displayName };
   }
 
+  setTooltip(layerId: string, fields: string[]) {
+    const result = this.controller.setTooltip(layerId, fields);
+    if (result.success) this.options.onChange?.();
+    return result;
+  }
+
+  resetTooltip(layerId: string) {
+    const result = this.controller.resetTooltip(layerId);
+    if (result.success) this.options.onChange?.();
+    return result;
+  }
+
+  addHexTileLayer(opts: any) {
+    const result = this.controller.addHexTileLayer(opts);
+    if (result.success && !result.already_exists) this.options.onChange?.();
+    return result;
+  }
+
+  removeHexTileLayer(layerId: string) {
+    const result = this.controller.removeHexTileLayer(layerId);
+    if (result.success) this.options.onChange?.();
+    return result;
+  }
+
   // --- view ---
 
   flyTo({ center, zoom }: { center: [number, number]; zoom?: number }) {

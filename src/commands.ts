@@ -199,6 +199,34 @@ Optional (private data):
       required: ['sql_query'],
     },
   });
+
+  registerMcpPassthrough(app, 'register_hex_tiles', {
+    caption: 'Materialize an H3 hex pyramid to object storage and return a MapLibre vector tile URL.',
+    usage: `Materialize a partitioned H3 hex pyramid to public object storage and return a MapLibre vector tile URL template, bounds, value columns, and per-resolution value stats.
+
+WHEN TO USE — only when the user explicitly asks for an aggregate density / heatmap / hex-grid visualization over a region. Trigger phrases: "hex map", "density map", "heatmap", "show density of X", "aggregate X by hex".
+
+Pair with geoagent:add_hex_tile_layer — pass tile_url_template → tile_url, value_columns → pick one as value_column, value_stats[value_column] → value_stats, bounds → bounds, layer_name → layer_name.
+
+For most map/data questions, use geoagent:query instead. Do NOT use this tool for counts/lookups, navigating the map, or styling an existing catalog layer.
+
+Required:
+- sql: SELECT whose first column is an H3 index
+
+Optional:
+- agg (default "COUNT"), min_res (default 2), finest_res (inferred from sql), zoom_offset (default -1)`,
+    args: {
+      type: 'object',
+      properties: {
+        sql: { type: 'string', description: 'SELECT whose first column is an H3 index' },
+        agg: { type: 'string', description: 'Aggregation applied at coarser pyramid levels (default COUNT)' },
+        min_res: { type: 'integer', description: 'Coarsest H3 resolution in the pyramid (default 2)' },
+        finest_res: { type: 'integer', description: 'Optional override; inferred from sql when omitted' },
+        zoom_offset: { type: 'integer', description: 'Maps map zoom to H3 resolution (default -1)' },
+      },
+      required: ['sql'],
+    },
+  });
 }
 
 function registerMcpPassthrough(

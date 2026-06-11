@@ -5,34 +5,6 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@boettiger-lab/jupyter-geoagent@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@boettiger-lab/jupyter-geoagent@workspace:."
-  dependencies:
-    "@jupyterlab/application": ^4.5.1
-    "@jupyterlab/apputils": ^4.5.1
-    "@jupyterlab/builder": ^4.5.1
-    "@jupyterlab/coreutils": ^6.5.1
-    "@jupyterlab/launcher": ^4.5.1
-    "@jupyterlab/services": ^7.5.1
-    "@jupyterlab/ui-components": ^4.5.1
-    "@lumino/widgets": ^2.3.0
-    "@modelcontextprotocol/sdk": ^1.12.0
-    "@types/json-schema": ^7.0.11
-    "@types/react": ^18.0.26
-    "@types/react-dom": ^18.0.10
-    css-loader: ^6.7.1
-    geo-agent: "git+https://github.com/boettiger-lab/geo-agent.git"
-    maplibre-gl: ^5.2.0
-    npm-run-all2: ^7.0.1
-    pmtiles: ^3.0.7
-    rimraf: ^5.0.1
-    source-map-loader: ^1.0.2
-    style-loader: ^3.3.1
-    typescript: ~5.5.4
-  languageName: unknown
-  linkType: soft
-
 "@codemirror/state@npm:^6.5.4":
   version: 6.6.0
   resolution: "@codemirror/state@npm:6.6.0"
@@ -55,6 +27,34 @@ __metadata:
   checksum: 32281c3df4075290d9a96dfc22f72fadb3da7055d4117e48d34046b8c98032a55fa260ae351b0af5d6f6fb57a2f5d79a4abe52af456da35195f7cb7dda27b4a2
   languageName: node
   linkType: hard
+
+"@geojupyter/jupyter-geoagent@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@geojupyter/jupyter-geoagent@workspace:."
+  dependencies:
+    "@jupyterlab/application": ^4.5.1
+    "@jupyterlab/apputils": ^4.5.1
+    "@jupyterlab/builder": ^4.5.1
+    "@jupyterlab/coreutils": ^6.5.1
+    "@jupyterlab/launcher": ^4.5.1
+    "@jupyterlab/services": ^7.5.1
+    "@jupyterlab/ui-components": ^4.5.1
+    "@lumino/widgets": ^2.3.0
+    "@modelcontextprotocol/sdk": ^1.12.0
+    "@types/json-schema": ^7.0.11
+    "@types/react": ^18.0.26
+    "@types/react-dom": ^18.0.10
+    css-loader: ^6.7.1
+    geo-agent: "git+https://github.com/boettiger-lab/geo-agent.git#988b83ef76feb957da7a71a63d8250bd0b1eb00b"
+    maplibre-gl: ^5.2.0
+    npm-run-all2: ^7.0.1
+    pmtiles: ^3.0.7
+    rimraf: ^5.0.1
+    source-map-loader: ^1.0.2
+    style-loader: ^3.3.1
+    typescript: ~5.5.4
+  languageName: unknown
+  linkType: soft
 
 "@hono/node-server@npm:^1.19.9":
   version: 1.19.14
@@ -2162,10 +2162,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geo-agent@git+https://github.com/boettiger-lab/geo-agent.git":
+"geo-agent@git+https://github.com/boettiger-lab/geo-agent.git#988b83ef76feb957da7a71a63d8250bd0b1eb00b":
   version: 1.0.0
-  resolution: "geo-agent@https://github.com/boettiger-lab/geo-agent.git#commit=bd724a52c7e42d95de713c0d063d84ecd7074003"
-  checksum: bade973c6243ef99cc80ad6b297927427ffa45c92948e3742c25393464de3f83f9c7faba5607c1e2a0d5b3223ad843e834d1d47e2e60365194f839448529fcdb
+  resolution: "geo-agent@https://github.com/boettiger-lab/geo-agent.git#commit=988b83ef76feb957da7a71a63d8250bd0b1eb00b"
+  checksum: f9bb3cb0eb226cd490cd0bc220ec52510941c769c4010b7d5422239c42724837b589b394208ade73f7d5209a93a9122eacba41d4bfbe18c3dc1136fe4d31441f
   languageName: node
   linkType: hard
 

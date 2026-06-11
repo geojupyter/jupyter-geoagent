@@ -12,6 +12,7 @@ import maplibregl from 'maplibre-gl';
 import * as pmtiles from 'pmtiles';
 import { MapLayerConfig, LayerState, MapViewState, ColumnInfo } from '../core/types';
 import type { MCPClientWrapper } from '../core/mcp';
+import { extractHashFromUrl, buildFillColorExpression } from 'geo-agent/app/hex-layer-helpers.js';
 
 const BASEMAPS: Record<string, { tiles: string[]; maxzoom: number }> = {
   natgeo: {
@@ -44,10 +45,12 @@ export class MapViewController {
   map: maplibregl.Map;
   layers: Map<string, LayerState> = new Map();
   private titilerUrl: string;
+  private _tooltip: HTMLDivElement;
 
-  constructor(map: maplibregl.Map, titilerUrl: string) {
+  constructor(map: maplibregl.Map, titilerUrl: string, tooltip: HTMLDivElement) {
     this.map = map;
     this.titilerUrl = titilerUrl;
+    this._tooltip = tooltip;
   }
 
   /**
@@ -146,6 +149,7 @@ export class MapViewController {
 
     this.layers.set(layerId, {
       id: layerId,
+      kind: 'catalog',
       datasetId,
       assetId: config.assetId,
       displayName: config.title,
@@ -155,6 +159,8 @@ export class MapViewController {
       fillColor: initialFillColor,
       filter: config.defaultFilter,
       defaultFilter: config.defaultFilter,
+      tooltipFields: config.tooltipFields ? [...config.tooltipFields] : null,
+      defaultTooltipFields: config.tooltipFields ? [...config.tooltipFields] : null,
       defaultStyle: appliedPaint,
       currentStyle: { ...appliedPaint },
       colormap: config.colormap,
@@ -167,6 +173,10 @@ export class MapViewController {
       titilerUrl: this.titilerUrl,
       cogUrl: config.cogUrl,
     });
+
+    if (config.layerType === 'vector') {
+      this._wireTooltip(layerId, layerId);
+    }
 
     return layerId;
   }
@@ -285,6 +295,36 @@ export class MapViewController {
     const state = this.layers.get(layerId);
     if (!state || !state.defaultStyle) return false;
     return this.setStyle(layerId, state.defaultStyle);
+  }
+
+  setTooltip(
+    layerId: string,
+    fields: string[],
+  ): { success: true; layer: string; displayName: string; tooltipFields: string[] | null }
+    | { success: false; error: string } {
+    const state = this.layers.get(layerId);
+    if (!state) return { success: false, error: `Unknown layer: ${layerId}` };
+    if (state.type !== 'vector') {
+      return { success: false, error: `Tooltips only apply to vector layers; '${layerId}' is ${state.type}` };
+    }
+    if (!Array.isArray(fields) || !fields.every(f => typeof f === 'string')) {
+      return { success: false, error: 'fields must be an array of strings' };
+    }
+    state.tooltipFields = fields.length > 0 ? [...fields] : null;
+    return { success: true, layer: layerId, displayName: state.displayName, tooltipFields: state.tooltipFields };
+  }
+
+  resetTooltip(
+    layerId: string,
+  ): { success: true; layer: string; displayName: string; tooltipFields: string[] | null }
+    | { success: false; error: string } {
+    const state = this.layers.get(layerId);
+    if (!state) return { success: false, error: `Unknown layer: ${layerId}` };
+    if (state.type !== 'vector') {
+      return { success: false, error: `Tooltips only apply to vector layers; '${layerId}' is ${state.type}` };
+    }
+    state.tooltipFields = state.defaultTooltipFields ? [...state.defaultTooltipFields] : null;
+    return { success: true, layer: layerId, displayName: state.displayName, tooltipFields: state.tooltipFields };
   }
 
   /**
@@ -447,6 +487,126 @@ export class MapViewController {
     this.map.flyTo({ center, zoom: zoom || this.map.getZoom() });
   }
 
+  addHexTileLayer(opts: {
+    tileUrl: string;
+    valueColumn: string;
+    valueStats: { by_res: Record<string, { min: number; max: number }> };
+    bounds: [number, number, number, number];
+    palette?: 'viridis' | 'ylorrd' | 'bluered';
+    opacity?: number;
+    displayName: string;
+    fitBounds?: boolean;
+    layerName?: string;
+  }): {
+    success: true;
+    layer_id: string;
+    display_name: string;
+    value_column: string;
+    bounds: [number, number, number, number];
+    already_exists: boolean;
+    message?: string;
+  } | { success: false; error: string } {
+    const { tileUrl, valueColumn, valueStats, bounds, palette = 'viridis', opacity = 0.7, displayName, fitBounds = true, layerName } = opts;
+    const sourceLayer = layerName || 'layer';
+
+    const hash = extractHashFromUrl(tileUrl);
+    if (!hash) {
+      return { success: false, error: 'Invalid tile_url — expected template from register_hex_tiles ending in /tiles/hex/<hash>/{z}/{x}/{y}.pbf' };
+    }
+    const layerId = `hex-${hash}`;
+
+    if (this.layers.has(layerId)) {
+      const state = this.layers.get(layerId)!;
+      return {
+        success: true,
+        layer_id: layerId,
+        display_name: state.displayName,
+        value_column: valueColumn,
+        bounds,
+        already_exists: true,
+        message: 'Layer already registered. Use remove_hex_tile_layer first to re-add with different styling.',
+      };
+    }
+
+    const availableRes = Object.keys(valueStats?.by_res || {}).map(Number).sort((a, b) => a - b);
+    if (availableRes.length === 0) {
+      return { success: false, error: 'value_stats.by_res must contain at least one resolution' };
+    }
+
+    let fillColor: any;
+    try {
+      fillColor = buildFillColorExpression(valueColumn, valueStats, palette);
+    } catch (err: any) {
+      return { success: false, error: err?.message ?? String(err) };
+    }
+
+    const paint = {
+      'fill-color': fillColor,
+      'fill-opacity': opacity,
+      'fill-outline-color': 'rgba(0,0,0,0.15)',
+    };
+
+    this.map.addSource(layerId, { type: 'vector', tiles: [tileUrl], minzoom: 0, maxzoom: 14 });
+    this.map.addLayer({
+      id: layerId,
+      type: 'fill',
+      source: layerId,
+      'source-layer': sourceLayer,
+      layout: { visibility: 'visible' },
+      paint: paint as any,
+    });
+
+    this.layers.set(layerId, {
+      id: layerId,
+      kind: 'hex',
+      displayName,
+      type: 'vector',
+      visible: true,
+      opacity,
+      filter: undefined,
+      defaultFilter: undefined,
+      tooltipFields: null,
+      defaultTooltipFields: null,
+      defaultStyle: { ...paint },
+      currentStyle: { ...paint },
+      sourceId: layerId,
+      sourceLayer,
+      columns: [],
+    });
+
+    this._wireTooltip(layerId, layerId);
+
+    if (fitBounds && Array.isArray(bounds) && bounds.length === 4) {
+      const [w, s, e, n] = bounds;
+      this.map.fitBounds([[w, s], [e, n]], { padding: 40, duration: 800 });
+    }
+
+    return {
+      success: true,
+      layer_id: layerId,
+      display_name: displayName,
+      value_column: valueColumn,
+      bounds,
+      already_exists: false,
+    };
+  }
+
+  removeHexTileLayer(layerId: string):
+    { success: true; layer_id: string }
+    | { success: false; error: string } {
+    if (typeof layerId !== 'string' || !layerId.startsWith('hex-')) {
+      return { success: false, error: `layer_id '${layerId}' is not a hex layer (must start with 'hex-')` };
+    }
+    if (!this.layers.has(layerId)) {
+      const hexLayers = [...this.layers.keys()].filter(id => id.startsWith('hex-'));
+      return { success: false, error: `Unknown hex layer '${layerId}'. Registered: [${hexLayers.join(', ')}]` };
+    }
+    if (this.map.getLayer(layerId)) this.map.removeLayer(layerId);
+    if (this.map.getSource(layerId)) this.map.removeSource(layerId);
+    this.layers.delete(layerId);
+    return { success: true, layer_id: layerId };
+  }
+
   getViewState(): MapViewState {
     const center = this.map.getCenter();
     return {
@@ -473,6 +633,42 @@ export class MapViewController {
   resize(): void {
     this.map.resize();
   }
+
+  private _wireTooltip(mapLayerId: string, layerId: string): void {
+    this.map.on('mousemove', mapLayerId, (e) => {
+      const fields = this.layers.get(layerId)?.tooltipFields;
+      if (!fields || fields.length === 0) return;
+      if (!e.features || e.features.length === 0) return;
+      const props = e.features[0].properties ?? {};
+      const rows = fields
+        .filter((f: string) => props[f] !== undefined && props[f] !== null && props[f] !== '')
+        .map((f: string) => `<tr><th>${f}</th><td>${this._formatTooltipValue(f, props[f])}</td></tr>`)
+        .join('');
+      if (!rows) return;
+      this._tooltip.innerHTML = `<table>${rows}</table>`;
+      this._tooltip.style.display = 'block';
+      const rect = this.map.getContainer().getBoundingClientRect();
+      this._tooltip.style.left = (e.originalEvent.clientX - rect.left + 12) + 'px';
+      this._tooltip.style.top = (e.originalEvent.clientY - rect.top - 12) + 'px';
+      this.map.getCanvas().style.cursor = 'pointer';
+    });
+
+    this.map.on('mouseleave', mapLayerId, () => {
+      this._tooltip.style.display = 'none';
+      this.map.getCanvas().style.cursor = '';
+    });
+  }
+
+  private _formatTooltipValue(field: string, value: any): string | number {
+    const lf = field.toLowerCase();
+    if (typeof value === 'number' && (lf.includes('value') || lf.includes('price') || lf.includes('cost'))) {
+      return '$' + value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+    if (typeof value === 'number' && (lf.includes('acres') || lf.includes('area'))) {
+      return value.toLocaleString('en-US', { maximumFractionDigits: 1 });
+    }
+    return value;
+  }
 }
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -483,6 +679,7 @@ export const MapView: React.FC<MapViewProps> = ({
   onMapReady,
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<maplibregl.Map | null>(null);
 
   React.useEffect(() => {
@@ -516,7 +713,8 @@ export const MapView: React.FC<MapViewProps> = ({
 
     map.on('load', () => {
       mapRef.current = map;
-      const controller = new MapViewController(map, titilerUrl);
+      if (!tooltipRef.current) return;
+      const controller = new MapViewController(map, titilerUrl, tooltipRef.current);
       if (onMapReady) onMapReady(controller);
     });
 
@@ -530,7 +728,9 @@ export const MapView: React.FC<MapViewProps> = ({
     <div
       ref={containerRef}
       className="jp-GeoAgent-map"
-      style={{ width: '100%', height: '100%' }}
-    />
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+    >
+      <div ref={tooltipRef} className="jp-GeoAgent-tooltip" />
+    </div>
   );
 };

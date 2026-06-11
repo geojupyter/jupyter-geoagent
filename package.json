@@ -56,7 +56,7 @@
     "@jupyterlab/ui-components": "^4.5.1",
     "@lumino/widgets": "^2.3.0",
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "geo-agent": "git+https://github.com/boettiger-lab/geo-agent.git",
+    "geo-agent": "git+https://github.com/boettiger-lab/geo-agent.git#988b83ef76feb957da7a71a63d8250bd0b1eb00b",
     "maplibre-gl": "^5.2.0",
     "pmtiles": "^3.0.7"
   },
