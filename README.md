@@ -36,3 +36,15 @@ jupyter lab --no-browser
 
 - **User guide:** how to use the extension day-to-day. Published at <https://jupyter-geoagent.readthedocs.io/> or read the source at [docs/usage.md](docs/usage.md).
 - **Design specification:** architecture and module reuse reference for contributors at [docs/design.md](docs/design.md).
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for development
+setup and the pull request process. By participating you agree to abide by our
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Citation
+
+If you use `jupyter-geoagent` in your work, please cite it. Citation metadata is
+available in [CITATION.cff](CITATION.cff), and GitHub's "Cite this repository"
+button renders it in APA and BibTeX. Archived releases are available on Zenodo.
