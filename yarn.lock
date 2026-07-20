@@ -45,7 +45,7 @@ __metadata:
     "@types/react": ^18.0.26
     "@types/react-dom": ^18.0.10
     css-loader: ^6.7.1
-    geo-agent: "git+https://github.com/boettiger-lab/geo-agent.git"
+    geo-agent: "git+https://github.com/boettiger-lab/geo-agent.git#bd724a52c7e42d95de713c0d063d84ecd7074003"
     maplibre-gl: ^5.2.0
     npm-run-all2: ^7.0.1
     pmtiles: ^3.0.7
@@ -2162,7 +2162,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geo-agent@git+https://github.com/boettiger-lab/geo-agent.git":
+"geo-agent@git+https://github.com/boettiger-lab/geo-agent.git#bd724a52c7e42d95de713c0d063d84ecd7074003":
   version: 1.0.0
   resolution: "geo-agent@https://github.com/boettiger-lab/geo-agent.git#commit=bd724a52c7e42d95de713c0d063d84ecd7074003"
   checksum: bade973c6243ef99cc80ad6b297927427ffa45c92948e3742c25393464de3f83f9c7faba5607c1e2a0d5b3223ad843e834d1d47e2e60365194f839448529fcdb
