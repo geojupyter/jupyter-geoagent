@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "jupyter-geoagent: A JupyterLab extension for interactive geospatial data exploration via STAC catalogs and MCP-powered queries"
+abstract: >-
+  jupyter-geoagent is a JupyterLab extension for GUI-driven, interactive
+  geospatial data exploration. It provides a STAC catalog browser, an
+  interactive MapLibre GL JS map, layer management, an MCP-powered DuckDB
+  query interface over cloud-hosted parquet data, and reproducible exports.
+type: software
+authors:
+  - family-names: Boettiger
+    given-names: Carl
+    email: cboettig@berkeley.edu
+    affiliation: "University of California, Berkeley"
+    orcid: "https://orcid.org/0000-0002-1642-628X"
+  - family-names: Fisher
+    given-names: Matt
+  - family-names: Buhler
+    given-names: Cassie
+  - family-names: Pérez
+    given-names: Fernando
+    affiliation: "University of California, Berkeley"
+repository-code: "https://github.com/geojupyter/jupyter-geoagent"
+url: "https://jupyter-geoagent.readthedocs.io/"
+license: BSD-3-Clause
+keywords:
+  - jupyter
+  - jupyterlab
+  - jupyterlab-extension
+  - geospatial
+  - stac
+  - maplibre
+  - duckdb
+  - mcp

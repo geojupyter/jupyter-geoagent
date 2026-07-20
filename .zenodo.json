@@ -1,0 +1,34 @@
+{
+  "title": "jupyter-geoagent: A JupyterLab extension for interactive geospatial data exploration via STAC catalogs and MCP-powered queries",
+  "description": "jupyter-geoagent is a JupyterLab extension for GUI-driven, interactive geospatial data exploration. It provides a STAC catalog browser, an interactive MapLibre GL JS map, layer management, an MCP-powered DuckDB query interface over cloud-hosted parquet data, and reproducible exports.",
+  "license": "BSD-3-Clause",
+  "upload_type": "software",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Boettiger, Carl",
+      "affiliation": "University of California, Berkeley",
+      "orcid": "0000-0002-1642-628X"
+    },
+    {
+      "name": "Fisher, Matt"
+    },
+    {
+      "name": "Buhler, Cassie"
+    },
+    {
+      "name": "Pérez, Fernando",
+      "affiliation": "University of California, Berkeley"
+    }
+  ],
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension",
+    "geospatial",
+    "stac",
+    "maplibre",
+    "duckdb",
+    "mcp"
+  ]
+}
