@@ -5,9 +5,32 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@boettiger-lab/jupyter-geoagent@workspace:.":
+"@codemirror/state@npm:^6.5.4":
+  version: 6.6.0
+  resolution: "@codemirror/state@npm:6.6.0"
+  dependencies:
+    "@marijn/find-cluster-break": ^1.0.0
+  checksum: 9400f356ebff7089f552012b95c8d46cdecc952cc9561537b7ebd7ea44fe34da7e02cfdcf17efc28fb6354bd54ecd9db7ca25b4756595acfe56c547c63cedee8
+  languageName: node
+  linkType: hard
+
+"@discoveryjs/json-ext@npm:^0.5.0":
+  version: 0.5.7
+  resolution: "@discoveryjs/json-ext@npm:0.5.7"
+  checksum: 2176d301cc258ea5c2324402997cf8134ebb212469c0d397591636cea8d3c02f2b3cf9fd58dcb748c7a0dade77ebdc1b10284fa63e608c033a1db52fddc69918
+  languageName: node
+  linkType: hard
+
+"@fortawesome/fontawesome-free@npm:^5.12.0":
+  version: 5.15.4
+  resolution: "@fortawesome/fontawesome-free@npm:5.15.4"
+  checksum: 32281c3df4075290d9a96dfc22f72fadb3da7055d4117e48d34046b8c98032a55fa260ae351b0af5d6f6fb57a2f5d79a4abe52af456da35195f7cb7dda27b4a2
+  languageName: node
+  linkType: hard
+
+"@geojupyter/jupyter-geoagent@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@boettiger-lab/jupyter-geoagent@workspace:."
+  resolution: "@geojupyter/jupyter-geoagent@workspace:."
   dependencies:
     "@jupyterlab/application": ^4.5.1
     "@jupyterlab/apputils": ^4.5.1
@@ -32,29 +55,6 @@ __metadata:
     typescript: ~5.5.4
   languageName: unknown
   linkType: soft
-
-"@codemirror/state@npm:^6.5.4":
-  version: 6.6.0
-  resolution: "@codemirror/state@npm:6.6.0"
-  dependencies:
-    "@marijn/find-cluster-break": ^1.0.0
-  checksum: 9400f356ebff7089f552012b95c8d46cdecc952cc9561537b7ebd7ea44fe34da7e02cfdcf17efc28fb6354bd54ecd9db7ca25b4756595acfe56c547c63cedee8
-  languageName: node
-  linkType: hard
-
-"@discoveryjs/json-ext@npm:^0.5.0":
-  version: 0.5.7
-  resolution: "@discoveryjs/json-ext@npm:0.5.7"
-  checksum: 2176d301cc258ea5c2324402997cf8134ebb212469c0d397591636cea8d3c02f2b3cf9fd58dcb748c7a0dade77ebdc1b10284fa63e608c033a1db52fddc69918
-  languageName: node
-  linkType: hard
-
-"@fortawesome/fontawesome-free@npm:^5.12.0":
-  version: 5.15.4
-  resolution: "@fortawesome/fontawesome-free@npm:5.15.4"
-  checksum: 32281c3df4075290d9a96dfc22f72fadb3da7055d4117e48d34046b8c98032a55fa260ae351b0af5d6f6fb57a2f5d79a4abe52af456da35195f7cb7dda27b4a2
-  languageName: node
-  linkType: hard
 
 "@hono/node-server@npm:^1.19.9":
   version: 1.19.14
