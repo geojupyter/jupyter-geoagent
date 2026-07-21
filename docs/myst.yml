@@ -6,9 +6,14 @@ project:
   toc:
     - file: index.md
     - file: usage.md
-    - file: design.md
+    - title: "For contributors"
+      children:
+        - file: contributor/design.md
+        - file: contributor/geo-agent.md
   exclude:
     - superpowers/**
     - _build/**
 site:
   template: book-theme
+  options:
+    folders: true
