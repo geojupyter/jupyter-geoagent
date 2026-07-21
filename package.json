@@ -1,6 +1,6 @@
 {
   "name": "@geojupyter/jupyter-geoagent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A JupyterLab extension for interactive geospatial data exploration via STAC catalogs and MCP-powered queries.",
   "keywords": [
     "jupyter",
