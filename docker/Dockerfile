@@ -30,7 +30,8 @@ RUN curl -fsSL https://claude.ai/install.sh | bash && \
     rm -rf "$HOME/.local"
 
 # OpenCode CLI — used by the jupyter-ai OpenCode persona.
-RUN curl -fsSL https://opencode.ai/install | bash && \
+ENV OPENCODE_VERSION=1.18.20
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --version "${OPENCODE_VERSION}" && \
     mv "$HOME/.opencode/bin/opencode" /usr/local/bin/opencode && \
     rm -rf "$HOME/.opencode"
 
