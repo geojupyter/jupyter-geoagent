@@ -1,6 +1,11 @@
 duckdb
 gh-scoped-creds
-jupyter-ai>=3,<4
+jupyter-ai==3.0.0
+jupyter-ai-acp-client==0.2.1
+jupyter-ai-chat-commands==0.0.4
+jupyter-ai-persona-manager==0.1.3
+jupyter-ai-router==0.0.7
+jupyter-ai-tools==0.6.1
 jupyter-geoagent @ git+https://github.com/geojupyter/jupyter-geoagent.git@main
 jupyter-myst-build-proxy
 jupyter-server-documents
