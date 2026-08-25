@@ -5,6 +5,7 @@ jupyter-geoagent @ git+https://github.com/geojupyter/jupyter-geoagent.git@main
 jupyter-myst-build-proxy
 jupyter-server-documents
 jupyter-server-proxy==4.4.0
+jupyterlab>=4.6.3
 jupyterlab-myst
 matplotlib
 pandas
